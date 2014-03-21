@@ -31,55 +31,10 @@ void animate(int frames_per_period,int frames_total){
     }
 }
 
-#define LINE(X,Y) for(int y=0;y<=11;y++){image.at<Vec3b>(X,Y+y)=black;}
-#define CROSS(X,Y) {for(int y=-5;y<=5;y++){image.at<Vec3b>(X,Y+y)=black;}for(int y=-5;y<=5;y++){image.at<Vec3b>(X+y,Y)=black;}}
 int main( int arc, char ** argv)
 {
-    /*int total=200;
+    int total=200;
     animate(30,total);
-    printf("%d images written\n",total);*/
-
-    Mat image;
-    image=imread("test.png");
-    printf("dimensions: %d and %d\n",image.cols,image.rows);
-    Vec3b black(0,0,0);
-    LINE(813,11);
-    LINE(713,11);
-    LINE(613,11);
-    LINE(513,11);
-    LINE(413,11);
-    LINE(311,11);
-    LINE(211,11);
-    LINE(111,11);
-    LINE(011,11);
-
-    LINE(813,1150);
-    LINE(713,1150);
-    LINE(613,1150);
-    LINE(513,1150);
-    LINE(413,1150);
-    LINE(311,1150);
-    LINE(211,1150);
-    LINE(111,1150);
-    LINE(11,1150);
-
-    CROSS(11,590);
-    CROSS(111,590);
-    CROSS(211,590);
-    CROSS(311,590);
-    CROSS(413,590);
-    CROSS(513,590);
-    CROSS(613,590);
-    CROSS(713,590);
-    CROSS(813,590);
-
-    if(false){
-        imwrite("mytest.png",image);
-    }else{
-        imshow("cut image",image);
-        waitKey(0);
-    }
-
-    return 0;
+    printf("%d images written\n",total);
 }
 //ffmpeg -i image%03d.jpg -vcodec mpeg4 test.avi
