@@ -1,4 +1,4 @@
-PROJECT( helloworld_proj )
+PROJECT( tracker_challenge_proj )
 FIND_PACKAGE( OpenCV REQUIRED )
-ADD_EXECUTABLE( helloworld test.cpp )
-TARGET_LINK_LIBRARIES( helloworld ${OpenCV_LIBS} )
+ADD_EXECUTABLE( tracker_challenge test.cpp )
+TARGET_LINK_LIBRARIES( tracker_challenge ${OpenCV_LIBS} )
