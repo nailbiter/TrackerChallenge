@@ -28,6 +28,12 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
     for(int i=0,px=initPos.x,py=initPos.y;i<framenum;i++,px+=increment_x,py+=increment_y){
         image=255;
         rectangle(image,Point(px,py),Point(px+objectWidth,py+objectHeight),0,CV_FILLED);
+        int dec=5;
+        for(int ii=0;ii<(objectWidth/dec);ii++){
+            for(int jj=0;jj<(objectHeight/dec);jj++){
+                rectangle(image,Point(px+ii*dec,py+jj*dec),Point(px+(ii+1)*dec,py+(jj+1)*dec),((ii+jj)%2)*255.0/2.0,CV_FILLED);
+            }
+        }
         fprintf(groundtruth,"%d %d %d %d\n",px,py,px+objectWidth,py+objectHeight);
         sprintf(filename,"image%03d.jpg",i+frameOffset);
         imwrite(filename,image);
