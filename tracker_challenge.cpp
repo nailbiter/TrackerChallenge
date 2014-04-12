@@ -17,7 +17,7 @@ FILE* groundtruth=NULL;
 #define DEFSCREENH 468
 
 int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
-        int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=200,int objectHeight=100){
+        int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=100,int objectHeight=100){
 
     Mat image(screenHeight,screenWidth, CV_8U, 1);
 
@@ -49,6 +49,10 @@ int main( int arc, char ** argv)
     groundtruth=fopen("groundtruth.txt","w");
     fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
 
+    total+=animate(p1,p2,50,total);
+    total+=animate(p2,p1,50,total);
+    total+=animate(p1,p2,50,total);
+    total+=animate(p2,p1,50,total);
     total+=animate(p1,p2,50,total);
     total+=animate(p2,p1,50,total);
     total+=animate(p1,p2,50,total);
