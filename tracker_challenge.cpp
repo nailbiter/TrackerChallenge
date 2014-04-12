@@ -29,9 +29,11 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
         image=255;
         rectangle(image,Point(px,py),Point(px+objectWidth,py+objectHeight),0,CV_FILLED);
         int dec=5;
+        RNG rng;
         for(int ii=0;ii<(objectWidth/dec);ii++){
             for(int jj=0;jj<(objectHeight/dec);jj++){
-                rectangle(image,Point(px+ii*dec,py+jj*dec),Point(px+(ii+1)*dec,py+(jj+1)*dec),((ii+jj)%2)*255.0/2.0,CV_FILLED);
+                //rectangle(image,Point(px+ii*dec,py+jj*dec),Point(px+(ii+1)*dec,py+(jj+1)*dec),((ii+jj)%2)*255.0/2.0,CV_FILLED);
+                rectangle(image,Point(px+ii*dec,py+jj*dec),Point(px+(ii+1)*dec,py+(jj+1)*dec),rng.next()%255,CV_FILLED);
             }
         }
         fprintf(groundtruth,"%d %d %d %d\n",px,py,px+objectWidth,py+objectHeight);
