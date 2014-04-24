@@ -1,0 +1,9 @@
+#format: 
+#x1 y1 x2 y2 f -- 5 integer numbers will make transition (x1,y1)-->(x2,y2) in f frames
+25 20 25 350 30  #sample comment
+* * 25 20 30  
+* * 25 350 30  
+* * 25 20 30  
+* * 25 350 30  
+* * 25 20 30  
+* * 25 350 30  

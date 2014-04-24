@@ -18,6 +18,11 @@ FILE* groundtruth=NULL;
 #define DEFSCREENW 832
 #define DEFSCREENH 468
 
+typedef struct{
+    int total;
+    Point prev_pt;
+} interpreter_data;
+
 int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
         int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=100,int objectHeight=100){
 
@@ -49,6 +54,7 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
 }
 
 void interpreter(char* line,void* data){
+    interpreter_data* mydata=(interpreter_data*)data;
     if(line==NULL || *line=='\0'){
         return;
     }
@@ -71,15 +77,25 @@ void interpreter(char* line,void* data){
     int nums[5];
     int i=0;
     for(i=0;ptr != NULL;ptr = strtok (NULL, " \t"),i++){
-        nums[i]=atoi(ptr);
+        if(strcmp(ptr,"*")==0 && i!=4){
+            nums[i]=((i%2)==0)?(mydata->prev_pt.x):(mydata->prev_pt.y);
+        }else{
+            nums[i]=atoi(ptr);
+        }
+        if(i!=4){
+            if((i%2)==0){
+                mydata->prev_pt.x=nums[i];
+            }else{
+                mydata->prev_pt.y=nums[i];
+            }
+        }
     }
     if(i<4){
         return;
     }
 
-    int* total=(int*)data;
     printf("transition (%d,%d)->(%d,%d) in %d frames\n",nums[0],nums[1],nums[2],nums[3],nums[4]);
-    *total+=animate(Point(nums[0],nums[1]),Point(nums[2],nums[3]),nums[4],*total);
+    mydata->total+=animate(Point(nums[0],nums[1]),Point(nums[2],nums[3]),nums[4],mydata->total);
 }
 void interpret(char* filename, void (*interpreter)(char*,void*),void* data){
     char buf[200]={'\0'};
@@ -95,9 +111,9 @@ void interpret(char* filename, void (*interpreter)(char*,void*),void* data){
     fclose(fs);
 }
 
-int main( int argc, char ** argv)
-{
-    int total=0;
+int main( int argc, char ** argv){
+    interpreter_data data;
+    data.total=0;
     if(argc==1){
         printf("usage: %s <commandfile.txt>\n",argv[0]);
         exit(0);
@@ -105,24 +121,12 @@ int main( int argc, char ** argv)
     groundtruth=fopen("groundtruth.txt","w");
     fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
 
-    interpret(argv[1],interpreter,(void*)&total);
-    //exit(0);
-
-    /*for(int i=0;i<1;i++){
-    total+=animate(p1,p2,3+25,total);
-    total+=animate(p2,p1,9+25,total);
-    total+=animate(p1,p2,2+25,total);
-    total+=animate(p2,p1,7+25,total);
-    total+=animate(p1,p2,3+25,total);
-    total+=animate(p2,p1,4+25,total);
-    total+=animate(p1,p2,1+25,total);
-    total+=animate(p2,p1,9+25,total);
-    }*/
+    interpret(argv[1],interpreter,(void*)&data);
 
     system("ffmpeg -i image\%03d.jpg -vcodec mpeg4 test.avi");
     system("rm -rf image*.jpg");
 
-    printf("%d images written\n",total);
+    printf("%d images written\n",data.total);
     printf("ground truth is written to groundtruth.txt\n");
     fclose(groundtruth);
 }
