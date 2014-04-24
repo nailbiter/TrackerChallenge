@@ -30,8 +30,8 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
     for(int i=0,px=initPos.x,py=initPos.y;i<framenum;i++,px+=increment_x,py+=increment_y){
         image=255;
         rectangle(image,Point(px,py),Point(px+objectWidth,py+objectHeight),0,CV_FILLED);
-#define RANDO
-#ifdef RANDO
+#undef RANDOCOL
+#ifdef RANDOCOL
         int dec=5;
         RNG rng;
         for(int ii=0;ii<(objectWidth/dec);ii++){
@@ -48,15 +48,67 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
     return framenum;
 }
 
-int main( int arc, char ** argv)
+void interpreter(char* line,void* data){
+    if(line==NULL || *line=='\0'){
+        return;
+    }
+    int len=strlen(line);
+    char *ptr=NULL;
+    if((ptr=strchr(line,'#'))!=NULL){
+        *ptr='\0';
+    }else{
+        ptr=line+len-1;
+        if(*ptr=='\n'){
+            *ptr='\0';
+        }
+    }
+    if(*line=='\0'){
+        return;
+    }
+
+    printf("real interpreter's got line %s\n",line);
+    ptr = strtok (line, " \t");
+    int nums[5];
+    int i=0;
+    for(i=0;ptr != NULL;ptr = strtok (NULL, " \t"),i++){
+        nums[i]=atoi(ptr);
+    }
+    if(i<4){
+        return;
+    }
+
+    int* total=(int*)data;
+    printf("transition (%d,%d)->(%d,%d) in %d frames\n",nums[0],nums[1],nums[2],nums[3],nums[4]);
+    *total+=animate(Point(nums[0],nums[1]),Point(nums[2],nums[3]),nums[4],*total);
+}
+void interpret(char* filename, void (*interpreter)(char*,void*),void* data){
+    char buf[200]={'\0'};
+    size_t n=sizeof(buf);
+    FILE* fs=fopen(filename,"r");
+    if(fs==NULL){
+        printf("cannot open file %s\n",filename);
+        exit(EXIT_FAILURE);
+    }
+    while((fgets(buf,sizeof(buf),fs))!=NULL){
+        interpreter(buf,data);
+    }
+    fclose(fs);
+}
+
+int main( int argc, char ** argv)
 {
     int total=0;
-    Point p1(25,468/2-100/2),
-          p2(832-25-200,468/2-100/2);
+    if(argc==1){
+        printf("usage: %s <commandfile.txt>\n",argv[0]);
+        exit(0);
+    }
     groundtruth=fopen("groundtruth.txt","w");
     fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
 
-    for(int i=0;i<1;i++){
+    interpret(argv[1],interpreter,(void*)&total);
+    //exit(0);
+
+    /*for(int i=0;i<1;i++){
     total+=animate(p1,p2,3+25,total);
     total+=animate(p2,p1,9+25,total);
     total+=animate(p1,p2,2+25,total);
@@ -65,7 +117,7 @@ int main( int arc, char ** argv)
     total+=animate(p2,p1,4+25,total);
     total+=animate(p1,p2,1+25,total);
     total+=animate(p2,p1,9+25,total);
-    }
+    }*/
 
     system("ffmpeg -i image\%03d.jpg -vcodec mpeg4 test.avi");
     system("rm -rf image*.jpg");
