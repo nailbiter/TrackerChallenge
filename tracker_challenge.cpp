@@ -15,8 +15,8 @@ using namespace cv;
 
 FILE* groundtruth=NULL;
 
-#define DEFSCREENW 832
-#define DEFSCREENH 468
+#define DEFSCREENW 320
+#define DEFSCREENH 240
 
 typedef struct{
     int total;
@@ -24,7 +24,7 @@ typedef struct{
 } interpreter_data;
 
 int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
-        int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=100,int objectHeight=100){
+        int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=20,int objectHeight=20){
 
     Mat image(screenHeight,screenWidth, CV_8U, 1);
 
@@ -72,7 +72,7 @@ void interpreter(char* line,void* data){
         return;
     }
 
-    printf("real interpreter's got line %s\n",line);
+    printf("interpreter's got line %s\n",line);
     ptr = strtok (line, " \t");
     int nums[5];
     int i=0;
@@ -97,6 +97,7 @@ void interpreter(char* line,void* data){
     printf("transition (%d,%d)->(%d,%d) in %d frames\n",nums[0],nums[1],nums[2],nums[3],nums[4]);
     mydata->total+=animate(Point(nums[0],nums[1]),Point(nums[2],nums[3]),nums[4],mydata->total);
 }
+
 void interpret(char* filename, void (*interpreter)(char*,void*),void* data){
     char buf[200]={'\0'};
     size_t n=sizeof(buf);
