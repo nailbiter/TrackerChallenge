@@ -1,3 +1,4 @@
+320 240
 #format: 
 #320x240
 #x1 y1 x2 y2 f -- 5 integer numbers will make transition (x1,y1)-->(x2,y2) in f frames
@@ -6,6 +7,7 @@
 * * 275 110 30
 * * 5 110 30
 * * 275 110 30
+- - - - 30
 * * 5 110 30
 * * 275 110 30
 * * 5 110 30

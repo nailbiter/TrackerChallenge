@@ -8,29 +8,42 @@
 
 using namespace cv;
 
-/*TODO: read transitions from config file
+/*TODO: two rectangles --> disappear
  */
 /*TODO: write this-> update contrib & opencv -> build contrib & opencv -> automate initial frame (contrib)
  */
 
 FILE* groundtruth=NULL;
 
-#define DEFSCREENW 320
-#define DEFSCREENH 240
+int DEFSCREENW=0;
+int DEFSCREENH=0;
 
-typedef struct{
+struct interpreter_data{
+    interpreter_data():total(0),first_time(true){}
     int total;
     Point prev_pt;
-} interpreter_data;
+    bool first_time;
+};
 
 int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
         int screenWidth=DEFSCREENW,int screenHeight=DEFSCREENH,int objectWidth=20,int objectHeight=20){
 
+    printf("line %d with %d %d\n",__LINE__,screenWidth,screenHeight);fflush(stdout);
     Mat image(screenHeight,screenWidth, CV_8U, 1);
-
+    printf("line %d\n",__LINE__);fflush(stdout);
     char filename[50];
     float increment_x=(finalPos.x-initPos.x)*1.0/framenum,
           increment_y=(finalPos.y-initPos.y)*1.0/framenum;
+
+    if(objectWidth<0 || objectHeight<0){
+        image=255;
+        for(int i=0;i<framenum;i++){
+            fprintf(groundtruth,"NaN,NaN,NaN,NaN\n");
+            sprintf(filename,"image%03d.jpg",i+frameOffset);
+            imwrite(filename,image);
+        }
+        return framenum;
+    }
     
     for(int i=0,px=initPos.x,py=initPos.y;i<framenum;i++,px+=increment_x,py+=increment_y){
         image=255;
@@ -46,7 +59,7 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
             }
         }
 #endif
-        fprintf(groundtruth,"%d %d %d %d\n",px,py,px+objectWidth,py+objectHeight);
+        fprintf(groundtruth,"%d,%d,%d,%d\n",px,py,px+objectWidth,py+objectHeight);
         sprintf(filename,"image%03d.jpg",i+frameOffset);
         imwrite(filename,image);
     }
@@ -55,9 +68,25 @@ int animate(Point initPos, Point finalPos,int framenum,int frameOffset,
 
 void interpreter(char* line,void* data){
     interpreter_data* mydata=(interpreter_data*)data;
+
     if(line==NULL || *line=='\0'){
         return;
     }
+
+    if(mydata->first_time){
+        mydata->first_time=false;
+        char *ptr = strtok (line, " \t");
+        DEFSCREENW=atoi(ptr);
+        ptr=strtok (NULL, " \t");
+        DEFSCREENH=atoi(ptr);
+        printf("resolution: %dx%d\n",DEFSCREENW,DEFSCREENH);
+        if(DEFSCREENW<=0 || DEFSCREENH<=0){
+            exit(EXIT_FAILURE);
+        }
+        fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
+        return;
+    }
+
     int len=strlen(line);
     char *ptr=NULL;
     if((ptr=strchr(line,'#'))!=NULL){
@@ -73,6 +102,13 @@ void interpreter(char* line,void* data){
     }
 
     printf("interpreter's got line %s\n",line);
+
+    if(strncmp(line,"- - - -",7)==0){
+        printf("disappear for %s frames\n",line+7);
+        mydata->total+=animate(Point(0,0),Point(0,0),atoi(line+7),mydata->total,DEFSCREENW,DEFSCREENH,-1,-1);
+        return;
+    }
+
     ptr = strtok (line, " \t");
     int nums[5];
     int i=0;
@@ -120,7 +156,6 @@ int main( int argc, char ** argv){
         exit(0);
     }
     groundtruth=fopen("groundtruth.txt","w");
-    fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
 
     interpret(argv[1],interpreter,(void*)&data);
 
