@@ -8,9 +8,7 @@
 
 using namespace cv;
 
-/*TODO: two rectangles --> disappear
- */
-/*TODO: write this-> update contrib & opencv -> build contrib & opencv -> automate initial frame (contrib)
+/*TODO:
  */
 
 FILE* groundtruth=NULL;
@@ -83,7 +81,6 @@ void interpreter(char* line,void* data){
         if(DEFSCREENW<=0 || DEFSCREENH<=0){
             exit(EXIT_FAILURE);
         }
-        fprintf(groundtruth,"%d %d\n",DEFSCREENH,DEFSCREENW);
         return;
     }
 
